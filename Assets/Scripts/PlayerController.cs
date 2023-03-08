@@ -31,4 +31,5 @@ public class PlayerController : MonoBehaviour
         moveDir.y -= gravity * Time.deltaTime;
         _charCtrl.Move(transform.TransformDirection(moveDir) * speed * Time.deltaTime);
     }
+
 }
