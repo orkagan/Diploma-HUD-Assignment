@@ -10,21 +10,29 @@ public class PlayerHud : MonoBehaviour
     public Image staminaBarFull;
     [SerializeField] private int health = 4;
 
-    public Image fullHealthIcon;
-    public Image injuredHealthIcon;
-    public Image halfHealthIcon;
-    public Image lowHealthIcon;
-    public Image deathIcon;
+    public Image restIcon;
+    public Image grappleIcon;
+    public Image attackIcon;
+    public Image tiredIcon;
+    public Image playerDamagedIcon;
+    public Image playerDeathIcon;
 
     private float stamina = 10f;
 
+
+    DamageHealth damageHealthClass;
+
+
     private void Start()
     {
-        fullHealthIcon.gameObject.SetActive(true);
-        injuredHealthIcon.gameObject.SetActive(false);
-        halfHealthIcon.gameObject.SetActive(false);
-        lowHealthIcon.gameObject.SetActive(false);
-        deathIcon.gameObject.SetActive(false);
+        damageHealthClass = FindObjectOfType<DamageHealth>();
+
+        restIcon.gameObject.SetActive(true);
+        grappleIcon.gameObject.SetActive(false);
+        attackIcon.gameObject.SetActive(false);
+        tiredIcon.gameObject.SetActive(false);
+        playerDamagedIcon.gameObject.SetActive(false);
+        playerDeathIcon.gameObject.SetActive(false);
     }
 
 
@@ -32,37 +40,37 @@ public class PlayerHud : MonoBehaviour
     {
         health -= damage;
         healthBarFull.fillAmount -= 0.25f;
-        HealthIcon();
+        PlayerIcon();
     }
 
-    private void HealthIcon()
+    private void PlayerIcon()
     {
-        if(health == 3)
+        if(health > 0)
         {
-
-            fullHealthIcon.gameObject.SetActive(false);
-            injuredHealthIcon.gameObject.SetActive(true);
+            restIcon.gameObject.SetActive(true);
         }
-        if(health == 2)
+        else if(health == 0)
         {
-            injuredHealthIcon.gameObject.SetActive(false);
-            halfHealthIcon.gameObject.SetActive(true);
-
-        }
-        if(health == 1)
-        {
-            halfHealthIcon.gameObject.SetActive(false);
-            lowHealthIcon.gameObject.SetActive(true);
-        }
-        if(health == 0)
-        {
-            lowHealthIcon.gameObject.SetActive(false);
-            deathIcon.gameObject.SetActive(true);
-
-            //DisablePlayerControls
+            restIcon.gameObject.SetActive(false);
+            playerDeathIcon.gameObject.SetActive(true);
 
         }
     }
 
+    /*IEnumerator PlayerIconChanger()
+    {
+
+    }*/
+
+    public IEnumerator DamageTimer()
+    {
+        damageHealthClass._tookDamage = true;
+        playerDamagedIcon.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(1);
+
+        playerDamagedIcon.gameObject.SetActive(false);
+        damageHealthClass._tookDamage = false;
+    }
 
 }

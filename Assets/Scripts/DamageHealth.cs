@@ -5,19 +5,22 @@ using UnityEngine;
 public class DamageHealth : MonoBehaviour
 {
 
-    PlayerHud playerHud;
-    int damage = 1;
+    PlayerHud playerHudClass;
+    public int damage = 1;
+    public bool _tookDamage;
 
     private void Start()
     {
-        playerHud= FindObjectOfType<PlayerHud>();
+        playerHudClass= FindObjectOfType<PlayerHud>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (other.gameObject.CompareTag("Player") && !_tookDamage)
         {
-            playerHud.TakeDamage(damage);
+            playerHudClass.TakeDamage(damage);
+            StartCoroutine(playerHudClass.DamageTimer());
         }
+        
     }
 }
