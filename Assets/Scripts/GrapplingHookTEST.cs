@@ -22,10 +22,7 @@ public class GrapplingHookTEST : MonoBehaviour
             HookShot();
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            //Dash
-        }
+        
 
     }
 

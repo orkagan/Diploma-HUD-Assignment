@@ -12,12 +12,16 @@ public class PlayerController : MonoBehaviour
     public bool _isDashing;
 
     Vector3 moveDir;
+
+    public Camera fpsCamera;
+
     private CharacterController _charCtrl;
     private PlayerHud playerHud; 
 
     // Start is called before the first frame update
     void Start()
     {
+        fpsCamera= Camera.main;
         playerHud = GetComponent<PlayerHud>();
         _charCtrl = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
@@ -54,7 +58,9 @@ public class PlayerController : MonoBehaviour
         {
             _isDashing = true;
             StartCoroutine(playerHud.PlayerIconChanger());
-            moveDir.z += dashSpeed;
+            
+            fpsCamera.transform.forward = transform.forward * dashSpeed * Time.deltaTime; // Unsure on this as it doesnt work currently.
+            //moveDir.z += dashSpeed;
             Debug.Log("DASH");
         }
 
