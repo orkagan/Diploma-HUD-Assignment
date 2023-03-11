@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     public float speed = 5f;
     public float jumpSpeed = 5f;
     public float gravity = 20f;
+    public float dashSpeed = 25f;
         
     Vector3 moveDir;
     private CharacterController _charCtrl;
@@ -15,6 +16,8 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _charCtrl = GetComponent<CharacterController>();
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame
@@ -30,6 +33,27 @@ public class PlayerController : MonoBehaviour
         }
         moveDir.y -= gravity * Time.deltaTime;
         _charCtrl.Move(transform.TransformDirection(moveDir) * speed * Time.deltaTime);
+
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            DashMechanic();
+            Debug.Log("Dash!");
+            
+        }
+
     }
+
+
+    private void DashMechanic()
+    {
+        moveDir.y += jumpSpeed;
+        moveDir.z += dashSpeed;
+
+
+
+    }
+
+    
 
 }

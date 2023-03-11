@@ -35,7 +35,7 @@ public class PlayerHud : MonoBehaviour
         playerDeathIcon.gameObject.SetActive(false);
     }
 
-
+    //Changes player health in to reflect icon changes, as well as reduces healthbar fill amount.
     public void TakeDamage(int damage)
     {
         health -= damage;
@@ -43,6 +43,7 @@ public class PlayerHud : MonoBehaviour
         PlayerIcon();
     }
 
+    //Changes Player Icon based only on full health and death icons.
     private void PlayerIcon()
     {
         if(health > 0)
@@ -57,11 +58,13 @@ public class PlayerHud : MonoBehaviour
         }
     }
 
+    //Place setter for now
     /*IEnumerator PlayerIconChanger()
     {
 
     }*/
 
+    //Changes Icon and bool to show the player took damage and to give 1 second grace of 'invulnerability'
     public IEnumerator DamageTimer()
     {
         damageHealthClass._tookDamage = true;
