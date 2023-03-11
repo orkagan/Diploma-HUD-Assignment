@@ -21,11 +21,13 @@ public class PlayerHud : MonoBehaviour
 
 
     DamageHealth damageHealthClass;
+    PlayerController playerControllerClass;
 
 
     private void Start()
     {
         damageHealthClass = FindObjectOfType<DamageHealth>();
+        playerControllerClass = GetComponent<PlayerController>();
 
         restIcon.gameObject.SetActive(true);
         grappleIcon.gameObject.SetActive(false);
@@ -46,11 +48,11 @@ public class PlayerHud : MonoBehaviour
     //Changes Player Icon based only on full health and death icons.
     private void PlayerIcon()
     {
-        if(health > 0)
+        if (health > 0)
         {
             restIcon.gameObject.SetActive(true);
         }
-        else if(health == 0)
+        else if (health == 0)
         {
             restIcon.gameObject.SetActive(false);
             playerDeathIcon.gameObject.SetActive(true);
@@ -59,10 +61,25 @@ public class PlayerHud : MonoBehaviour
     }
 
     //Place setter for now
-    /*IEnumerator PlayerIconChanger()
+    public IEnumerator PlayerIconChanger()
     {
+        if (playerControllerClass._isDashing == true && staminaBarFull.fillAmount >0)
+        {
+            restIcon.gameObject.SetActive(false);
+            grappleIcon.gameObject.SetActive(true);
+            staminaBarFull.fillAmount -= 0.25f;
+            yield return new WaitForSeconds(0.5f);
+            playerControllerClass._isDashing = false;
+            grappleIcon.gameObject.SetActive(false);
+            restIcon.gameObject.SetActive(true);
 
-    }*/
+        }
+        if(staminaBarFull.fillAmount <= 0)
+        {
+            restIcon.gameObject.SetActive(false);
+            tiredIcon.gameObject.SetActive(true);
+        }
+    }
 
     //Changes Icon and bool to show the player took damage and to give 1 second grace of 'invulnerability'
     public IEnumerator DamageTimer()

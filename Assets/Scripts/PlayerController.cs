@@ -7,14 +7,18 @@ public class PlayerController : MonoBehaviour
     public float speed = 5f;
     public float jumpSpeed = 5f;
     public float gravity = 20f;
+
     public float dashSpeed = 25f;
-        
+    public bool _isDashing;
+
     Vector3 moveDir;
     private CharacterController _charCtrl;
-    
+    private PlayerHud playerHud; 
+
     // Start is called before the first frame update
     void Start()
     {
+        playerHud = GetComponent<PlayerHud>();
         _charCtrl = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -38,8 +42,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             DashMechanic();
-            Debug.Log("Dash!");
-            
+
         }
 
     }
@@ -47,13 +50,17 @@ public class PlayerController : MonoBehaviour
 
     private void DashMechanic()
     {
-        moveDir.y += jumpSpeed;
-        moveDir.z += dashSpeed;
-
+        if (_charCtrl.isGrounded == false && playerHud.staminaBarFull.fillAmount > 0)
+        {
+            _isDashing = true;
+            StartCoroutine(playerHud.PlayerIconChanger());
+            moveDir.z += dashSpeed;
+            Debug.Log("DASH");
+        }
 
 
     }
 
-    
+
 
 }
