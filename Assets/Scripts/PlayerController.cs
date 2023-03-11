@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(playerHud.PlayerIconChanger());
             
             fpsCamera.transform.forward = transform.forward * dashSpeed * Time.deltaTime; // Unsure on this as it doesnt work currently.
-            //moveDir.z += dashSpeed;
+            //moveDir.z += dashSpeed; (previous currently working dash mechanic, though may have to put a very small wait for seconds to stop spamming.
             Debug.Log("DASH");
         }
 
