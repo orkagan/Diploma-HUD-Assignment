@@ -60,7 +60,7 @@ public class PlayerHud : MonoBehaviour
         }
     }
 
-    //Place setter for now
+    //Changes stamina bard fill amount and icon of the player.
     public IEnumerator PlayerIconChanger()
     {
         if (playerControllerClass._isDashing == true && staminaBarFull.fillAmount >0)
