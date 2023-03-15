@@ -24,7 +24,8 @@ public class PlayerController : MonoBehaviour
 
     public PlayerStats playerStats; //scriptable object
     private CharacterController _charCtrl;
-    private PlayerHud playerHud; 
+    private PlayerHud playerHud;
+    public LineRenderer lr;
 
     // Start is called before the first frame update
     void Start()
@@ -88,7 +89,10 @@ public class PlayerController : MonoBehaviour
                 //if further than small distance
                 if (offset.magnitude > 0.1f)
                 {
-                    Debug.DrawLine(transform.position,_grapplePoint,Color.black); //draw line isn't working idk
+                    //TODO draw grapple line
+                    lr.gameObject.SetActive(true);
+                    lr.SetPosition(0, transform.position);
+                    lr.SetPosition(1, _grapplePoint);
                     //move towards target
                     _charCtrl.Move(offset.normalized * grappleSpeed * Time.deltaTime);
                 }
@@ -96,6 +100,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            lr.gameObject.SetActive(false);
             grappling = false;
         }
 
