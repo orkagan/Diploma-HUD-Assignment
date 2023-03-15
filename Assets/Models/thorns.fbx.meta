@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: 76f652fd73c8e8c408cd91b44ca50840
+guid: f0784e6e02ed64b4b9dab1ae5db8d202
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: thorns
+    second: {fileID: 2100000, guid: 5563efbcac092754ab88adf423d09eac, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -88,7 +93,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 0.01
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
