@@ -14,8 +14,8 @@ public class PlayerController : MonoBehaviour
     public bool grappling;
     public float grappleRange = 50f;
     public float grappleSpeed = 50f;
-    public float staminaRegenRate = 20f;
-    public float staminaUsageRate = 10f;
+    public float staminaRegenRate = 60f;
+    public float staminaUsageRate = 40f;
     Vector3 _grapplePoint;
 
     Vector3 moveDir;

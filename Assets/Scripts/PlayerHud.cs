@@ -60,25 +60,34 @@ public class PlayerHud : MonoBehaviour
     void Update()
     {
         staminaBarFull.fillAmount = playerStats.stamina / playerStats.maxStamina;
+        PlayerIconChanger();
     }
 
     //Changes icon of the player.
-    public IEnumerator PlayerIconChanger()
+    public void PlayerIconChanger()
     {
-        if (playerControllerClass.grappling == true && staminaBarFull.fillAmount >0)
+        //if not taking damage
+        if (!damageHealthClass._tookDamage)
         {
-            restIcon.gameObject.SetActive(false);
-            grappleIcon.gameObject.SetActive(true);
-            yield return new WaitForSeconds(0.5f);
-            playerControllerClass.grappling = false;
-            grappleIcon.gameObject.SetActive(false);
-            restIcon.gameObject.SetActive(true);
-
-        }
-        if(staminaBarFull.fillAmount <= 0)
-        {
-            restIcon.gameObject.SetActive(false);
-            tiredIcon.gameObject.SetActive(true);
+            //grappling face
+            if (playerControllerClass.grappling == true)
+            {
+                restIcon.gameObject.SetActive(false);
+                grappleIcon.gameObject.SetActive(true);
+            }
+            //out of stamina tired face
+            else if (staminaBarFull.fillAmount <= 0)
+            {
+                restIcon.gameObject.SetActive(false);
+                tiredIcon.gameObject.SetActive(true);
+            }
+            //rest face
+            else
+            {
+                tiredIcon.gameObject.SetActive(false);
+                grappleIcon.gameObject.SetActive(false);
+                restIcon.gameObject.SetActive(true);
+            }
         }
     }
 
