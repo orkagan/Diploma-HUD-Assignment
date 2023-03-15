@@ -21,9 +21,6 @@ public class GrapplingHookTEST : MonoBehaviour
         {
             HookShot();
         }
-
-        
-
     }
 
     public void HookShot()
@@ -43,12 +40,6 @@ public class GrapplingHookTEST : MonoBehaviour
 
             grappled = true;
             Debug.Log("I hit the target");
-
-            
-
-            
-
-
         }
         else
         {

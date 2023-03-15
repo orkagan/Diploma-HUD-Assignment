@@ -8,7 +8,6 @@ public class PlayerHud : MonoBehaviour
 
     public Image healthBarFull;
     public Image staminaBarFull;
-    [SerializeField] private int health = 4;
 
     public Image restIcon;
     public Image grappleIcon;
@@ -17,8 +16,7 @@ public class PlayerHud : MonoBehaviour
     public Image playerDamagedIcon;
     public Image playerDeathIcon;
 
-    private float stamina = 10f;
-
+    public PlayerStats playerStats; //scriptable object
 
     DamageHealth damageHealthClass;
     PlayerController playerControllerClass;
@@ -40,36 +38,39 @@ public class PlayerHud : MonoBehaviour
     //Changes player health in to reflect icon changes, as well as reduces healthbar fill amount.
     public void TakeDamage(int damage)
     {
-        health -= damage;
-        healthBarFull.fillAmount -= 0.25f;
+        playerStats.health -= damage;
+        healthBarFull.fillAmount = playerStats.health / playerStats.maxHealth;
         PlayerIcon();
     }
 
     //Changes Player Icon based only on full health and death icons.
     private void PlayerIcon()
     {
-        if (health > 0)
+        if (playerStats.health > 0)
         {
             restIcon.gameObject.SetActive(true);
         }
-        else if (health == 0)
+        else if (playerStats.health == 0)
         {
             restIcon.gameObject.SetActive(false);
             playerDeathIcon.gameObject.SetActive(true);
 
         }
     }
+    void Update()
+    {
+        staminaBarFull.fillAmount = playerStats.stamina / playerStats.maxStamina;
+    }
 
-    //Changes stamina bard fill amount and icon of the player.
+    //Changes icon of the player.
     public IEnumerator PlayerIconChanger()
     {
-        if (playerControllerClass._isDashing == true && staminaBarFull.fillAmount >0)
+        if (playerControllerClass.grappling == true && staminaBarFull.fillAmount >0)
         {
             restIcon.gameObject.SetActive(false);
             grappleIcon.gameObject.SetActive(true);
-            staminaBarFull.fillAmount -= 0.25f;
             yield return new WaitForSeconds(0.5f);
-            playerControllerClass._isDashing = false;
+            playerControllerClass.grappling = false;
             grappleIcon.gameObject.SetActive(false);
             restIcon.gameObject.SetActive(true);
 
