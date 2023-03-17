@@ -8,21 +8,19 @@ public class CornCollection : MonoBehaviour
 
     public PlayerStats playerStats;
 
-    //int heal = 1;
-
     private void Start()
     {
         playerHudClass= FindObjectOfType<PlayerHud>();
     }
 
     //Need to redo this for stamina
-    /*private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player") && playerStats.health < 4)
+        if (other.gameObject.CompareTag("Player"))
         {
-            playerHudClass.Heal(heal);
+            playerStats.stamina = playerStats.maxStamina;
 
             Destroy(gameObject);
         }
-    }*/
+    }
 }
