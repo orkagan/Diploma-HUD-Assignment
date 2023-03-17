@@ -20,14 +20,11 @@ public class PlayerHud : MonoBehaviour
     public int coinCount;
 
     public PlayerStats playerStats; //scriptable object
-
-    DamageHealth damageHealthClass;
     PlayerController playerControllerClass;
 
 
     private void Start()
     {
-        damageHealthClass = FindObjectOfType<DamageHealth>();
         playerControllerClass = GetComponent<PlayerController>();
 
         restIcon.gameObject.SetActive(true);
@@ -83,7 +80,7 @@ public class PlayerHud : MonoBehaviour
     public void PlayerIconChanger()
     {
         //if not taking damage
-        if (!damageHealthClass._tookDamage)
+        if (!DamageHealth._tookDamage)
         {
             //grappling face
             if (playerControllerClass.grappling == true)
@@ -110,13 +107,13 @@ public class PlayerHud : MonoBehaviour
     //Changes Icon and bool to show the player took damage and to give 1 second grace of 'invulnerability'
     public IEnumerator DamageTimer()
     {
-        damageHealthClass._tookDamage = true;
+        DamageHealth._tookDamage = true;
         playerDamagedIcon.gameObject.SetActive(true);
 
         yield return new WaitForSeconds(1);
 
         playerDamagedIcon.gameObject.SetActive(false);
-        damageHealthClass._tookDamage = false;
+        DamageHealth._tookDamage = false;
     }
 
 }

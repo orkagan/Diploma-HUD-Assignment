@@ -7,7 +7,7 @@ public class DamageHealth : MonoBehaviour
 
     PlayerHud playerHudClass;
     public int damage = 1;
-    public bool _tookDamage;
+    public static bool _tookDamage;
 
     private void Start()
     {
