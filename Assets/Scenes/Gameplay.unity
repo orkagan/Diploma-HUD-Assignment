@@ -1866,7 +1866,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &599943195
 Light:
   m_ObjectHideFlags: 0
@@ -1878,7 +1878,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0.20803057, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -1936,14 +1936,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 599943194}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalRotation: {x: 0.39924917, y: -0.23567536, z: 0.10697847, w: 0.8795526}
+  m_LocalPosition: {x: 98.7, y: 177.1, z: -26.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 48.829, y: -30, z: 0}
 --- !u!1001 &602916499
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5158,6 +5158,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 537696346984855823, guid: c82742d41e62ad249a4d3e9a86da20a3, type: 3}
+      propertyPath: m_BackGroundColor.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 537696346984855823, guid: c82742d41e62ad249a4d3e9a86da20a3, type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.1981132
+      objectReference: {fileID: 0}
+    - target: {fileID: 537696346984855823, guid: c82742d41e62ad249a4d3e9a86da20a3, type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.07756318
+      objectReference: {fileID: 0}
+    - target: {fileID: 537696346984855823, guid: c82742d41e62ad249a4d3e9a86da20a3, type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.12323379
+      objectReference: {fileID: 0}
     - target: {fileID: 537696347055961872, guid: c82742d41e62ad249a4d3e9a86da20a3, type: 3}
       propertyPath: restIcon
       value: 
