@@ -16,6 +16,9 @@ public class PlayerHud : MonoBehaviour
     public Image playerDamagedIcon;
     public Image playerDeathIcon;
 
+    public Text coinCountText;
+    public int coinCount;
+
     public PlayerStats playerStats; //scriptable object
 
     DamageHealth damageHealthClass;
@@ -39,8 +42,21 @@ public class PlayerHud : MonoBehaviour
     public void TakeDamage(int damage)
     {
         playerStats.health -= damage;
-        healthBarFull.fillAmount = playerStats.health / playerStats.maxHealth;
+        healthBarFull.fillAmount = playerStats.health / playerStats.maxHealth; 
         PlayerIcon();
+    }
+
+
+    public void AddCoin()
+    {
+        coinCount++;
+        coinCountText.text = "x " + (coinCount.ToString());
+    }
+
+    public void Heal(int heal)
+    {
+        playerStats.health += heal;
+        healthBarFull.fillAmount = playerStats.health += playerStats.maxHealth; // Unsure on the math here.
     }
 
     //Changes Player Icon based only on full health and death icons.

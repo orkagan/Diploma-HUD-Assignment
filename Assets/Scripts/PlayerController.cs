@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviour
         if (_charCtrl.isGrounded)
         {
             moveDir.y = 0;
-            if (Input.GetButtonDown("Jump"))
+            if (Input.GetButtonDown("Jump")) // Cant seem to jump when not moving immediately after a grapple.
             {
                 moveDir.y += jumpSpeed;
             }
@@ -56,7 +56,8 @@ public class PlayerController : MonoBehaviour
             //regen stamina
             if (playerStats.stamina < playerStats.maxStamina & !grappling)
             {
-                playerStats.stamina += staminaRegenRate * Time.deltaTime; //this is inconsistent idk why
+                playerStats.stamina += staminaRegenRate * Time.deltaTime; //this is inconsistent idk why (BUG REPORT) - It seems if you're standing still its slow regen, if you're moving it regens quickly because
+                //The movement is in update, and this then procs this line of code multiple times which increases its regen?
             }
         }
 
