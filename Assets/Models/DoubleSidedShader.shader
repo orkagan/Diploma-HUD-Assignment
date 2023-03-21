@@ -1,322 +1,175 @@
-Shader "StandardDoubleSide"
-{
-	Properties
-	{
-		_Color("Color", Color) = (1,1,1,1)
-		_MainTex("Albedo", 2D) = "white" {}
-
-		_Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
-
-		_Glossiness("Smoothness", Range(0.0, 1.0)) = 0.5
-		[Gamma] _Metallic("Metallic", Range(0.0, 1.0)) = 0.0
-		_MetallicGlossMap("Metallic", 2D) = "white" {}
-
-		_BumpScale("Scale", Float) = 1.0
-		_BumpMap("Normal Map", 2D) = "bump" {}
-
-		_Parallax("Height Scale", Range(0.005, 0.08)) = 0.02
-		_ParallaxMap("Height Map", 2D) = "black" {}
+Shader "Custom/Double Sided Legacy Cutout VertexLit Shader" {
+    Properties{
+        _Color("Main Color", Color) = (1,1,1,1)
+        _SpecColor("Spec Color", Color) = (1,1,1,0)
+        _Emission("Emissive Color", Color) = (0,0,0,0)
+        [PowerSlider(5.0)] _Shininess("Shininess", Range(0.1, 1)) = 0.7
+        _MainTex("Base (RGB) Trans (A)", 2D) = "white" {}
+        _Cutoff("Alpha cutoff", Range(0,1)) = 0.5
+    }
+
+        SubShader{
+            Tags {"Queue" = "AlphaTest" "IgnoreProjector" = "True" "RenderType" = "TransparentCutout"}
+            LOD 100
+            Cull Off
+
+            // Non-lightmapped
+            Pass {
+                Tags { "LightMode" = "Vertex" }
+                Alphatest Greater[_Cutoff]
+                AlphaToMask True
+                ColorMask RGB
+                Material {
+                    Diffuse[_Color]
+                    Ambient[_Color]
+                    Shininess[_Shininess]
+                    Specular[_SpecColor]
+                    Emission[_Emission]
+                }
+                Lighting On
+                SeparateSpecular On
+                SetTexture[_MainTex] {
+                    Combine texture * primary DOUBLE, texture * primary
+                }
+            }
+
+            // Lightmapped
+            Pass
+            {
+                Tags{ "LIGHTMODE" = "VertexLM" "QUEUE" = "AlphaTest" "IGNOREPROJECTOR" = "true" "RenderType" = "TransparentCutout" }
+                AlphaToMask On
+                ColorMask RGB
+
+                CGPROGRAM
+
+                #pragma vertex vert
+                #pragma fragment frag
+                #pragma target 2.0
+                #include "UnityCG.cginc"
+                #pragma multi_compile_fog
+                #define USING_FOG (defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2))
+
+                float4 unity_Lightmap_ST;
+                float4 _MainTex_ST;
+
+                struct appdata
+                {
+                    float3 pos : POSITION;
+                    half4 color : COLOR;
+                    float3 uv1 : TEXCOORD1;
+                    float3 uv0 : TEXCOORD0;
+                    UNITY_VERTEX_INPUT_INSTANCE_ID
+                };
+
+                struct v2f
+                {
+                    fixed4 color : COLOR0;
+                    float2 uv0 : TEXCOORD0;
+                    float2 uv1 : TEXCOORD1;
+                    float2 uv2 : TEXCOORD2;
+        #if USING_FOG
+                    fixed fog : TEXCOORD3;
+        #endif
+                    float4 pos : SV_POSITION;
+                    UNITY_VERTEX_OUTPUT_STEREO
+                };
+
+                v2f vert(appdata IN)
+                {
+                    v2f o;
+                    UNITY_SETUP_INSTANCE_ID(IN);
+                    UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                    half4 color = IN.color;
+                    float3 eyePos = UnityObjectToViewPos(IN.pos);
+                    half3 viewDir = 0.0;
+                    o.color = saturate(color);
+
+                    o.uv0 = IN.uv1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+                    o.uv1 = IN.uv1.xy * unity_Lightmap_ST.xy + unity_Lightmap_ST.zw;
+                    o.uv2 = IN.uv0.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+
+        #if USING_FOG
+                    float fogCoord = length(eyePos.xyz);
+                    UNITY_CALC_FOG_FACTOR_RAW(fogCoord);
+                    o.fog = saturate(unityFogFactor);
+        #endif
+                    o.pos = UnityObjectToClipPos(IN.pos);
+                    return o;
+                }
+
+                sampler2D _MainTex;
+                fixed4 _Color;
+                fixed _Cutoff;
+
+                fixed4 frag(v2f IN) : SV_Target
+                {
+                    half4 bakedColorTex = UNITY_SAMPLE_TEX2D(unity_Lightmap, IN.uv0.xy);
+                    half4 bakedColor = half4(DecodeLightmap(bakedColorTex), 1.0);
+
+                    fixed4 col = bakedColor * _Color;
+
+                    fixed4 tex = tex2D(_MainTex, IN.uv2.xy);
+
+                    col.rgb = tex.rgb * col.rgb;
+                    col.a = tex.a * IN.color.a;
+
+                    clip(col.a - _Cutoff);
+
+        #if USING_FOG
+                    col.rgb = lerp(unity_FogColor.rgb, col.rgb, IN.fog);
+        #endif
+                    return col;
+                }
+
+                ENDCG
+            }
+
+            // Pass to render object as a shadow caster
+            Pass {
+                Name "Caster"
+                Tags { "LightMode" = "ShadowCaster" }
+
+        CGPROGRAM
+        #pragma vertex vert
+        #pragma fragment frag
+        #pragma target 2.0
+        #pragma multi_compile_shadowcaster
+        #pragma multi_compile_instancing // allow instanced shadow pass for most of the shaders
+        #include "UnityCG.cginc"
+
+        struct v2f {
+            V2F_SHADOW_CASTER;
+            float2  uv : TEXCOORD1;
+            UNITY_VERTEX_OUTPUT_STEREO
+        };
+
+        uniform float4 _MainTex_ST;
+
+        v2f vert(appdata_base v)
+        {
+            v2f o;
+            UNITY_SETUP_INSTANCE_ID(v);
+            UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+            TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+            o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
+            return o;
+        }
+
+        uniform sampler2D _MainTex;
+        uniform fixed _Cutoff;
+        uniform fixed4 _Color;
+
+        float4 frag(v2f i) : SV_Target
+        {
+            fixed4 texcol = tex2D(_MainTex, i.uv);
+            clip(texcol.a* _Color.a - _Cutoff);
+
+            SHADOW_CASTER_FRAGMENT(i)
+        }
+        ENDCG
+
+            }
+
+        }
 
-		_OcclusionStrength("Strength", Range(0.0, 1.0)) = 1.0
-		_OcclusionMap("Occlusion", 2D) = "white" {}
-
-		_EmissionColor("Color", Color) = (0,0,0)
-		_EmissionMap("Emission", 2D) = "white" {}
-
-		_DetailMask("Detail Mask", 2D) = "white" {}
-
-		_DetailAlbedoMap("Detail Albedo x2", 2D) = "grey" {}
-		_DetailNormalMapScale("Scale", Float) = 1.0
-		_DetailNormalMap("Normal Map", 2D) = "bump" {}
-
-		[Enum(UV0,0,UV1,1)] _UVSec("UV Set for secondary textures", Float) = 0
-
-
-			// Blending state
-			[HideInInspector] _Mode("__mode", Float) = 0.0
-			[HideInInspector] _SrcBlend("__src", Float) = 1.0
-			[HideInInspector] _DstBlend("__dst", Float) = 0.0
-			[HideInInspector] _ZWrite("__zw", Float) = 1.0
-	}
-
-		CGINCLUDE
-#define UNITY_SETUP_BRDF_INPUT MetallicSetup
-			ENDCG
-
-			SubShader
-		{
-			Tags { "RenderType" = "Opaque" "PerformanceChecks" = "False" }
-			LOD 300
-
-
-			// ------------------------------------------------------------------
-			//  Base forward pass (directional light, emission, lightmaps, ...)
-			Pass
-			{
-				Name "FORWARD"
-				Tags { "LightMode" = "ForwardBase" }
-
-				Blend[_SrcBlend][_DstBlend]
-				ZWrite[_ZWrite]
-				Cull Off
-				CGPROGRAM
-				#pragma target 3.0
-			// TEMPORARY: GLES2.0 temporarily disabled to prevent errors spam on devices without textureCubeLodEXT
-			#pragma exclude_renderers gles
-
-			// -------------------------------------
-
-			#pragma shader_feature _NORMALMAP
-			#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
-			#pragma shader_feature _EMISSION
-			#pragma shader_feature _METALLICGLOSSMAP
-			#pragma shader_feature ___ _DETAIL_MULX2
-			#pragma shader_feature _PARALLAXMAP
-
-			#pragma multi_compile_fwdbase
-			#pragma multi_compile_fog
-
-			#pragma vertex vertForwardBase
-			#pragma fragment fragForwardBase
-
-			#include "UnityStandardCore.cginc"
-
-			ENDCG
-		}
-			// ------------------------------------------------------------------
-			//  Additive forward pass (one light per pass)
-			Pass
-			{
-				Name "FORWARD_DELTA"
-				Tags { "LightMode" = "ForwardAdd" }
-				Blend[_SrcBlend] One
-				Fog { Color(0,0,0,0) } // in additive pass fog should be black
-				ZWrite Off
-				ZTest LEqual
-
-				CGPROGRAM
-				#pragma target 3.0
-			// GLES2.0 temporarily disabled to prevent errors spam on devices without textureCubeLodEXT
-			#pragma exclude_renderers gles
-
-			// -------------------------------------
-
-
-			#pragma shader_feature _NORMALMAP
-			#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
-			#pragma shader_feature _METALLICGLOSSMAP
-			#pragma shader_feature ___ _DETAIL_MULX2
-			#pragma shader_feature _PARALLAXMAP
-
-			#pragma multi_compile_fwdadd_fullshadows
-			#pragma multi_compile_fog
-
-			#pragma vertex vertForwardAdd
-			#pragma fragment fragForwardAdd
-
-			#include "UnityStandardCore.cginc"
-
-			ENDCG
-		}
-			// ------------------------------------------------------------------
-			//  Shadow rendering pass
-			Pass {
-				Name "ShadowCaster"
-				Tags { "LightMode" = "ShadowCaster" }
-
-				ZWrite On ZTest LEqual
-
-				CGPROGRAM
-				#pragma target 3.0
-			// TEMPORARY: GLES2.0 temporarily disabled to prevent errors spam on devices without textureCubeLodEXT
-			#pragma exclude_renderers gles
-
-			// -------------------------------------
-
-
-			#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
-			#pragma multi_compile_shadowcaster
-
-			#pragma vertex vertShadowCaster
-			#pragma fragment fragShadowCaster
-
-			#include "UnityStandardShadow.cginc"
-
-			ENDCG
-		}
-			// ------------------------------------------------------------------
-			//  Deferred pass
-			Pass
-			{
-				Name "DEFERRED"
-				Tags { "LightMode" = "Deferred" }
-				Cull Off
-				CGPROGRAM
-				#pragma target 3.0
-			// TEMPORARY: GLES2.0 temporarily disabled to prevent errors spam on devices without textureCubeLodEXT
-			#pragma exclude_renderers nomrt gles
-
-
-			// -------------------------------------
-
-			#pragma shader_feature _NORMALMAP
-			#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
-			#pragma shader_feature _EMISSION
-			#pragma shader_feature _METALLICGLOSSMAP
-			#pragma shader_feature ___ _DETAIL_MULX2
-			#pragma shader_feature _PARALLAXMAP
-
-			#pragma multi_compile ___ UNITY_HDR_ON
-			#pragma multi_compile LIGHTMAP_OFF LIGHTMAP_ON
-			#pragma multi_compile DIRLIGHTMAP_OFF DIRLIGHTMAP_COMBINED DIRLIGHTMAP_SEPARATE
-			#pragma multi_compile DYNAMICLIGHTMAP_OFF DYNAMICLIGHTMAP_ON
-
-			#pragma vertex vertDeferred
-			#pragma fragment fragDeferred
-
-			#include "UnityStandardCore.cginc"
-
-			ENDCG
-		}
-
-			// ------------------------------------------------------------------
-			// Extracts information for lightmapping, GI (emission, albedo, ...)
-			// This pass it not used during regular rendering.
-			Pass
-			{
-				Name "META"
-				Tags { "LightMode" = "Meta" }
-
-				Cull Off
-
-				CGPROGRAM
-				#pragma vertex vert_meta
-				#pragma fragment frag_meta
-
-				#pragma shader_feature _EMISSION
-				#pragma shader_feature _METALLICGLOSSMAP
-				#pragma shader_feature ___ _DETAIL_MULX2
-
-				#include "UnityStandardMeta.cginc"
-				ENDCG
-			}
-		}
-
-			SubShader
-		{
-			Tags { "RenderType" = "Opaque" "PerformanceChecks" = "False" }
-			LOD 150
-
-			// ------------------------------------------------------------------
-			//  Base forward pass (directional light, emission, lightmaps, ...)
-			Pass
-			{
-				Name "FORWARD"
-				Tags { "LightMode" = "ForwardBase" }
-
-				Blend[_SrcBlend][_DstBlend]
-				ZWrite[_ZWrite]
-
-				CGPROGRAM
-				#pragma target 2.0
-
-				#pragma shader_feature _NORMALMAP
-				#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
-				#pragma shader_feature _EMISSION
-				#pragma shader_feature _METALLICGLOSSMAP
-				#pragma shader_feature ___ _DETAIL_MULX2
-			// SM2.0: NOT SUPPORTED shader_feature _PARALLAXMAP
-
-			#pragma skip_variants SHADOWS_SOFT DIRLIGHTMAP_COMBINED DIRLIGHTMAP_SEPARATE
-
-			#pragma multi_compile_fwdbase
-			#pragma multi_compile_fog
-
-			#pragma vertex vertForwardBase
-			#pragma fragment fragForwardBase
-
-			#include "UnityStandardCore.cginc"
-
-			ENDCG
-		}
-			// ------------------------------------------------------------------
-			//  Additive forward pass (one light per pass)
-			Pass
-			{
-				Name "FORWARD_DELTA"
-				Tags { "LightMode" = "ForwardAdd" }
-				Blend[_SrcBlend] One
-				Fog { Color(0,0,0,0) } // in additive pass fog should be black
-				ZWrite Off
-				ZTest LEqual
-
-				CGPROGRAM
-				#pragma target 2.0
-
-				#pragma shader_feature _NORMALMAP
-				#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
-				#pragma shader_feature _METALLICGLOSSMAP
-				#pragma shader_feature ___ _DETAIL_MULX2
-			// SM2.0: NOT SUPPORTED shader_feature _PARALLAXMAP
-			#pragma skip_variants SHADOWS_SOFT
-
-			#pragma multi_compile_fwdadd_fullshadows
-			#pragma multi_compile_fog
-
-			#pragma vertex vertForwardAdd
-			#pragma fragment fragForwardAdd
-
-			#include "UnityStandardCore.cginc"
-
-			ENDCG
-		}
-			// ------------------------------------------------------------------
-			//  Shadow rendering pass
-			Pass {
-				Name "ShadowCaster"
-				Tags { "LightMode" = "ShadowCaster" }
-
-				ZWrite On ZTest LEqual
-
-				CGPROGRAM
-				#pragma target 2.0
-
-				#pragma shader_feature _ _ALPHATEST_ON _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON
-				#pragma skip_variants SHADOWS_SOFT
-				#pragma multi_compile_shadowcaster
-
-				#pragma vertex vertShadowCaster
-				#pragma fragment fragShadowCaster
-
-				#include "UnityStandardShadow.cginc"
-
-				ENDCG
-			}
-
-			// ------------------------------------------------------------------
-			// Extracts information for lightmapping, GI (emission, albedo, ...)
-			// This pass it not used during regular rendering.
-			Pass
-			{
-				Name "META"
-				Tags { "LightMode" = "Meta" }
-
-				Cull Off
-
-				CGPROGRAM
-				#pragma vertex vert_meta
-				#pragma fragment frag_meta
-
-				#pragma shader_feature _EMISSION
-				#pragma shader_feature _METALLICGLOSSMAP
-				#pragma shader_feature ___ _DETAIL_MULX2
-
-				#include "UnityStandardMeta.cginc"
-				ENDCG
-			}
-		}
-
-
-			FallBack "VertexLit"
-			CustomEditor "StandardShaderGUI"
 }
