@@ -125,7 +125,7 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(ray, out hit, grappleRange))
         {
             _grapplePoint = hit.point;
-            Debug.Log($"grapple point: {_grapplePoint}");
+            //Debug.Log($"grapple point: {_grapplePoint}");
             return true;
         }
         return false;

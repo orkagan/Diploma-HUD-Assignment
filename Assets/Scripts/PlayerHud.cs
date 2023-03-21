@@ -67,7 +67,7 @@ public class PlayerHud : MonoBehaviour
         {
             restIcon.gameObject.SetActive(false);
             playerDeathIcon.gameObject.SetActive(true);
-
+            GameManager.Instance.GameOver();
         }
     }
     void Update()
