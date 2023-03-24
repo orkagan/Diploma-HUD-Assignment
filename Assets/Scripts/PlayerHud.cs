@@ -36,7 +36,7 @@ public class PlayerHud : MonoBehaviour
     }
 
     //Changes player health in to reflect icon changes, as well as reduces healthbar fill amount.
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         playerStats.health = Mathf.Clamp( //clamps health so it doesn't go out of range
             playerStats.health - damage,

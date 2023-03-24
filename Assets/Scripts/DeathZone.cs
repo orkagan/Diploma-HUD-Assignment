@@ -5,7 +5,7 @@ using UnityEngine;
 public class DeathZone : MonoBehaviour
 {
     PlayerHud playerHudClass;
-    public int damage = 4;
+    public PlayerStats playerStats;
     public static bool _tookDamage;
 
     private void Start()
@@ -17,9 +17,8 @@ public class DeathZone : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player") && !_tookDamage)
         {
-            playerHudClass.TakeDamage(damage);
+            playerHudClass.TakeDamage(playerStats.maxHealth);
             StartCoroutine(playerHudClass.DamageTimer());
         }
-
     }
 }

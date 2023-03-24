@@ -661,7 +661,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35786fea197a032479a946c09329fb07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 4
+  playerStats: {fileID: 11400000, guid: a10b1050e1152334a87f16feb8766d42, type: 2}
 --- !u!4 &112250616 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1118287638626524170, guid: 8e55e372c6b5ceb4f89b5dc6d3a178f3, type: 3}
