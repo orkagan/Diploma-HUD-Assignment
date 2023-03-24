@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
 
     public GameState gameState;
     [SerializeField] GameObject gameOverScreen;
+    [SerializeField] GameObject winScreen;
     [SerializeField] GameObject playerObj;
     
     void Start()
@@ -84,15 +85,14 @@ public class GameManager : MonoBehaviour
         gameState = GameState.Dead;
         gameOverScreen.SetActive(true);
         //make the player stop when they die
-        //goes through and disables all scripts on player and child objects
-        foreach(MonoBehaviour script in playerObj.GetComponents<MonoBehaviour>())
-        {
-            script.enabled = false;
-        }
-        foreach(MonoBehaviour script in playerObj.GetComponentsInChildren<MonoBehaviour>())
-        {
-            script.enabled = false;
-        }
+        DisablePlayerScripts();
+    }
+
+    public void Win()
+    {
+        gameState = GameState.Menu;
+        winScreen.SetActive(true);
+        DisablePlayerScripts();
     }
 
     public void Retry()
@@ -110,5 +110,18 @@ public class GameManager : MonoBehaviour
         Debug.Log("ExitGame attempted.");
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
+    }
+
+    private void DisablePlayerScripts()
+    {
+        //goes through and disables all scripts on player and child objects
+        foreach (MonoBehaviour script in playerObj.GetComponents<MonoBehaviour>())
+        {
+            script.enabled = false;
+        }
+        foreach (MonoBehaviour script in playerObj.GetComponentsInChildren<MonoBehaviour>())
+        {
+            script.enabled = false;
+        }
     }
 }

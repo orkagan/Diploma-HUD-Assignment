@@ -6,7 +6,9 @@ using UnityEngine.UI;
 public class PlayerHud : MonoBehaviour
 {
 
-    public Image healthBarFull;
+    public Image healthBar;
+    public Color highHealth;
+    public Color lowHealth;
     public Image staminaBarFull;
 
     public Image restIcon;
@@ -40,9 +42,10 @@ public class PlayerHud : MonoBehaviour
     {
         playerStats.health = Mathf.Clamp( //clamps health so it doesn't go out of range
             playerStats.health - damage,
-            0, //doesn't go below 0
-            playerStats.maxHealth); //doesn't go above maxhealth
-        healthBarFull.fillAmount = playerStats.health / playerStats.maxHealth; 
+            0,                          //doesn't go below 0
+            playerStats.maxHealth);     //doesn't go above maxhealth
+        healthBar.fillAmount = playerStats.health / playerStats.maxHealth;
+        healthBar.color = Color.Lerp(lowHealth, highHealth, healthBar.fillAmount);
         PlayerIcon();
     }
 
@@ -55,8 +58,7 @@ public class PlayerHud : MonoBehaviour
 
     public void Heal(int heal)
     {
-        playerStats.health += heal;
-        healthBarFull.fillAmount = playerStats.health += playerStats.maxHealth; // Unsure on the math here.
+        TakeDamage(-heal); //undamage lol
     }
 
     //Changes Player Icon based only on full health and death icons.
