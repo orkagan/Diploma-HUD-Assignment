@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     /*public float dashSpeed = 25f;
     public bool _isDashing;*/
 
+    public bool grapplable;
     public bool grappling;
     public float grappleRange = 50f;
     public float grappleSpeed = 50f;
@@ -38,6 +39,8 @@ public class PlayerController : MonoBehaviour
 
         playerStats.health = playerStats.maxHealth;
         playerStats.stamina = playerStats.maxStamina;
+        grappling = false;
+        grapplable = false;
     }
 
     // Update is called once per frame
@@ -68,35 +71,28 @@ public class PlayerController : MonoBehaviour
 
         }*/
 
-        //grappling (kinda jank using Unity's character controller)
+        //grappling mechanic
+        grapplable = GrappleHook(); //constantly checking if surface is grapplable (for the cursor)
         //left click
-        if (Input.GetMouseButton(0) & playerStats.stamina>0)
+        if (Input.GetMouseButton(0) & playerStats.stamina > 0 & grapplable)
         {
-            //not grappling yet but starting grapple
-            if (!grappling)
-            {
-                //if grapple target is found, GrappleHook() returns true, making grappling true
-                grappling = GrappleHook();
-            }
+            grappling = true;
             //stuff that happens when grappling
-            else
-            {
-                moveDir = Vector3.zero; //just resets moveDir so when you stop grappling momentem isn't weird (gravity in this script is strange)
-                playerStats.stamina -= staminaUsageRate * Time.deltaTime;
+            moveDir = Vector3.zero; //just resets moveDir so when you stop grappling momentem isn't weird (gravity in this script is strange)
+            playerStats.stamina -= staminaUsageRate * Time.deltaTime;
 
-                Vector3 offset;
-                //figuring out the vector from player to target in world space
-                offset = _grapplePoint - transform.position;
-                //if further than small distance
-                if (offset.magnitude > 0.1f)
-                {
-                    //TODO draw grapple line
-                    lr.gameObject.SetActive(true);
-                    lr.SetPosition(0, transform.position);
-                    lr.SetPosition(1, _grapplePoint);
-                    //move towards target
-                    _charCtrl.Move(offset.normalized * grappleSpeed * Time.deltaTime);
-                }
+            Vector3 offset;
+            //figuring out the vector from player to target in world space
+            offset = _grapplePoint - transform.position;
+            //if further than small distance
+            if (offset.magnitude > 0.1f)
+            {
+                //draw grapple line
+                lr.gameObject.SetActive(true);
+                lr.SetPosition(0, transform.position);
+                lr.SetPosition(1, _grapplePoint);
+                //move towards target
+                _charCtrl.Move(offset.normalized * grappleSpeed * Time.deltaTime);
             }
         }
         else
@@ -124,7 +120,7 @@ public class PlayerController : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, grappleRange))
         {
-            _grapplePoint = hit.point;
+            if(!grappling) _grapplePoint = hit.point;
             //Debug.Log($"grapple point: {_grapplePoint}");
             return true;
         }
