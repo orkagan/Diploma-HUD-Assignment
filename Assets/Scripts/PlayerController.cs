@@ -74,7 +74,7 @@ public class PlayerController : MonoBehaviour
         //grappling mechanic
         grapplable = GrappleHook(); //constantly checking if surface is grapplable (for the cursor)
         //left click
-        if (Input.GetMouseButton(0) & playerStats.stamina > 0 & grapplable)
+        if (Input.GetMouseButton(0) & playerStats.stamina > 0 & (grapplable||grappling))
         {
             grappling = true;
             //stuff that happens when grappling
