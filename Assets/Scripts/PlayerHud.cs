@@ -53,7 +53,7 @@ public class PlayerHud : MonoBehaviour
     public void AddCoin()
     {
         coinCount++;
-        coinCountText.text = "x " + (coinCount.ToString());
+        coinCountText.text = (coinCount.ToString());
     }
 
     public void Heal(int heal)
