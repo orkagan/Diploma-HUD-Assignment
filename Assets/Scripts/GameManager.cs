@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
-        gameState = GameState.Playing;
         playerObj = GameObject.FindGameObjectWithTag("Player");
     }
 
@@ -93,6 +92,14 @@ public class GameManager : MonoBehaviour
         gameState = GameState.Menu;
         winScreen.SetActive(true);
         DisablePlayerScripts();
+    }
+
+    public void NextScene()
+    {
+        // Get the current scene
+        Scene currentScene = SceneManager.GetActiveScene();
+        // Load the next scene after the current scene
+        SceneManager.LoadScene((currentScene.buildIndex + 1)%SceneManager.sceneCountInBuildSettings);
     }
 
     public void Retry()

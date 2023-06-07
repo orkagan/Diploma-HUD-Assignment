@@ -7716,6 +7716,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1286701384, guid: 343cdbeb51ad4824cb761ff56d58ddb8, type: 3}
+      propertyPath: gameState
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3205130178025670544, guid: 343cdbeb51ad4824cb761ff56d58ddb8, type: 3}
       propertyPath: m_Pivot.x
       value: 0

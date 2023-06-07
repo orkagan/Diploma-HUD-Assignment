@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Main Menu.unity
+    guid: bc0296612ee80bd42b94736699ef0adf
+  - enabled: 1
+    path: Assets/Scenes/Gameplay.unity
+    guid: 278d14fb18022c245aa02282a854c43b
+  - enabled: 1
+    path: Assets/Scenes/Pumpkin Tower.unity
+    guid: 316cc6af1e04cd2468166c00bf1a0cb1
   m_configObjects: {}
